@@ -53,22 +53,39 @@ def post_json(url, body, headers):
         return json.load(resp)
 
 
+TOKEN_URLS = [
+    TOKEN_URL,
+    "https://api.amazon.eu/auth/o2/token",
+    "https://api.amazon.com/auth/o2/token",
+]
+
+
 def get_token():
-    try:
-        data = post_json(
-            TOKEN_URL,
-            {
-                "grant_type": "client_credentials",
-                "client_id": os.environ["CREATORS_API_CLIENT_ID"].strip(),
-                "client_secret": os.environ["CREATORS_API_CLIENT_SECRET"].strip(),
-                "scope": "creatorsapi::default",
-            },
-            {},
-        )
-    except urllib.error.HTTPError as e:
-        # Die Antwort von Login with Amazon enthält nur Fehlercode und -text, keine Zugangsdaten.
-        sys.exit(f"Anmeldung bei Amazon fehlgeschlagen: HTTP {e.code} {e.read()[:300].decode(errors='replace')}")
-    return data["access_token"]
+    client_id = os.environ["CREATORS_API_CLIENT_ID"].strip()
+    client_secret = os.environ["CREATORS_API_CLIENT_SECRET"].strip()
+    # Nur Form und Länge prüfen, nie die Werte selbst ausgeben.
+    print(
+        "Prüfe Zugangsdaten: "
+        f"ID beginnt mit amzn1.application-oa2-client.: {client_id.startswith('amzn1.application-oa2-client.')}, "
+        f"Secret beginnt mit amzn1.oa2-cs.: {client_secret.startswith('amzn1.oa2-cs.')}, "
+        f"Länge ID/Secret: {len(client_id)}/{len(client_secret)}"
+    )
+    body = {
+        "grant_type": "client_credentials",
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "scope": "creatorsapi::default",
+    }
+    errors = []
+    for url in TOKEN_URLS:
+        try:
+            data = post_json(url, body, {})
+            print(f"Anmeldung erfolgreich über {url}")
+            return data["access_token"]
+        except urllib.error.HTTPError as e:
+            # Die Antwort von Login with Amazon enthält nur Fehlercode und -text, keine Zugangsdaten.
+            errors.append(f"{url}: HTTP {e.code} {e.read()[:200].decode(errors='replace')}")
+    sys.exit("Anmeldung bei Amazon fehlgeschlagen:\n  " + "\n  ".join(errors))
 
 
 def search(token, cfg, category, keyword, partner_tag):
