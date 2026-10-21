@@ -1,0 +1,35 @@
+{
+  "seitentitel": "Deal-Alarm 🔥 Top-Rabatte",
+  "marketplace": "www.amazon.de",
+  "sprache": "de_DE",
+  "min_rabatt_prozent": 20,
+  "min_bewertung": 4,
+  "max_deals_pro_kategorie": 12,
+  "storefront_auswahl_anzahl": 10,
+  "kategorien": [
+    {
+      "name": "Haushalt",
+      "emoji": "🏠",
+      "searchIndex": "HomeAndKitchen",
+      "suchbegriffe": ["Haushalt", "Küche", "Staubsauger", "Kaffeemaschine"]
+    },
+    {
+      "name": "Garten",
+      "emoji": "🌿",
+      "searchIndex": "GardenAndOutdoor",
+      "suchbegriffe": ["Garten", "Gartengeräte", "Bewässerung", "Grill"]
+    },
+    {
+      "name": "TV & Sound",
+      "emoji": "📺",
+      "searchIndex": "Electronics",
+      "suchbegriffe": ["Fernseher", "Soundbar", "Kopfhörer", "Bluetooth Lautsprecher"]
+    },
+    {
+      "name": "Kameras",
+      "emoji": "📷",
+      "searchIndex": "Photo",
+      "suchbegriffe": ["Kamera", "Action Cam", "Überwachungskamera", "Objektiv"]
+    }
+  ]
+}
