@@ -24,6 +24,7 @@ import re
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from zoneinfo import ZoneInfo
 
@@ -90,17 +91,27 @@ def get_token():
         "client_secret": client_secret,
         "scope": "creatorsapi::default",
     }
+    form = urllib.parse.urlencode(body).encode()
     errors = []
     for url in TOKEN_URLS:
-        try:
-            data = post_json(url, body, {})
-            print(f"Anmeldung erfolgreich über {url}")
-            return data["access_token"]
-        except urllib.error.HTTPError as e:
-            # Die Antwort von Login with Amazon enthält nur Fehlercode und -text, keine Zugangsdaten.
-            errors.append(f"{url}: HTTP {e.code} {e.read()[:200].decode(errors='replace')}")
-        except urllib.error.URLError as e:
-            errors.append(f"{url}: {e.reason}")
+        # Amazon dokumentiert JSON; Login with Amazon akzeptiert klassisch auch Formulardaten.
+        for variant in ("json", "form"):
+            try:
+                if variant == "json":
+                    data = post_json(url, body, {})
+                else:
+                    req = urllib.request.Request(
+                        url, data=form, method="POST",
+                        headers={"Content-Type": "application/x-www-form-urlencoded"},
+                    )
+                    with urllib.request.urlopen(req, timeout=30) as resp:
+                        data = json.load(resp)
+                print(f"Anmeldung erfolgreich über {url} ({variant})")
+                return data["access_token"]
+            except urllib.error.HTTPError as e:
+                errors.append(f"{url} ({variant}): HTTP {e.code} {e.read()[:200].decode(errors='replace')}")
+            except urllib.error.URLError as e:
+                errors.append(f"{url} ({variant}): {e.reason}")
     sys.exit("Anmeldung bei Amazon fehlgeschlagen:\n  " + "\n  ".join(errors))
 
 
