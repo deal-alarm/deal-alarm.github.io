@@ -20,6 +20,7 @@ import html
 import json
 import os
 import pathlib
+import re
 import sys
 import time
 import urllib.error
@@ -61,7 +62,19 @@ TOKEN_URLS = [
 
 def get_token():
     client_id = os.environ["CREATORS_API_CLIENT_ID"].strip()
-    client_secret = os.environ["CREATORS_API_CLIENT_SECRET"].strip()
+    raw_secret = os.environ["CREATORS_API_CLIENT_SECRET"]
+    client_secret = raw_secret.strip()
+    # Falls versehentlich eine ganze CSV-Zeile eingefügt wurde: das eigentliche Secret herausziehen.
+    match = re.search(r"amzn1\.oa2-cs\.[A-Za-z0-9._-]+", raw_secret)
+    if match:
+        client_secret = match.group(0)
+    print(
+        "Secret-Inhalt (ohne Werte): "
+        f"Kommas: {raw_secret.count(',')}, Zeilenumbrüche: {raw_secret.count(chr(10))}, "
+        f"Leerzeichen: {raw_secret.count(' ')}, enthält amzn1.: {raw_secret.count('amzn1.')}x, "
+        f"enthält amzn1.oa2-cs.: {bool(match)}, nur Buchstaben/Ziffern: {raw_secret.strip().isalnum()}",
+        flush=True,
+    )
     # Nur Form und Länge prüfen, nie die Werte selbst ausgeben.
     print(
         "Prüfe Zugangsdaten: "
