@@ -55,7 +55,6 @@ def post_json(url, body, headers):
 
 TOKEN_URLS = [
     TOKEN_URL,
-    "https://api.amazon.eu/auth/o2/token",
     "https://api.amazon.com/auth/o2/token",
 ]
 
@@ -68,7 +67,8 @@ def get_token():
         "Prüfe Zugangsdaten: "
         f"ID beginnt mit amzn1.application-oa2-client.: {client_id.startswith('amzn1.application-oa2-client.')}, "
         f"Secret beginnt mit amzn1.oa2-cs.: {client_secret.startswith('amzn1.oa2-cs.')}, "
-        f"Länge ID/Secret: {len(client_id)}/{len(client_secret)}"
+        f"Länge ID/Secret: {len(client_id)}/{len(client_secret)}",
+        flush=True,
     )
     body = {
         "grant_type": "client_credentials",
@@ -85,6 +85,8 @@ def get_token():
         except urllib.error.HTTPError as e:
             # Die Antwort von Login with Amazon enthält nur Fehlercode und -text, keine Zugangsdaten.
             errors.append(f"{url}: HTTP {e.code} {e.read()[:200].decode(errors='replace')}")
+        except urllib.error.URLError as e:
+            errors.append(f"{url}: {e.reason}")
     sys.exit("Anmeldung bei Amazon fehlgeschlagen:\n  " + "\n  ".join(errors))
 
 
