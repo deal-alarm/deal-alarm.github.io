@@ -54,16 +54,20 @@ def post_json(url, body, headers):
 
 
 def get_token():
-    data = post_json(
-        TOKEN_URL,
-        {
-            "grant_type": "client_credentials",
-            "client_id": os.environ["CREATORS_API_CLIENT_ID"],
-            "client_secret": os.environ["CREATORS_API_CLIENT_SECRET"],
-            "scope": "creatorsapi::default",
-        },
-        {},
-    )
+    try:
+        data = post_json(
+            TOKEN_URL,
+            {
+                "grant_type": "client_credentials",
+                "client_id": os.environ["CREATORS_API_CLIENT_ID"].strip(),
+                "client_secret": os.environ["CREATORS_API_CLIENT_SECRET"].strip(),
+                "scope": "creatorsapi::default",
+            },
+            {},
+        )
+    except urllib.error.HTTPError as e:
+        # Die Antwort von Login with Amazon enthält nur Fehlercode und -text, keine Zugangsdaten.
+        sys.exit(f"Anmeldung bei Amazon fehlgeschlagen: HTTP {e.code} {e.read()[:300].decode(errors='replace')}")
     return data["access_token"]
 
 
@@ -127,7 +131,7 @@ def score(d):
 def collect(cfg, demo):
     if demo:
         return demo_deals(cfg)
-    partner_tag = os.environ["AMAZON_PARTNER_TAG"]
+    partner_tag = os.environ["AMAZON_PARTNER_TAG"].strip()
     token = get_token()
     deals = {}
     for cat in cfg["kategorien"]:
