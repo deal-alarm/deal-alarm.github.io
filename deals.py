@@ -67,7 +67,8 @@ def get_token():
         "Prüfe Zugangsdaten: "
         f"ID beginnt mit amzn1.application-oa2-client.: {client_id.startswith('amzn1.application-oa2-client.')}, "
         f"Secret beginnt mit amzn1.oa2-cs.: {client_secret.startswith('amzn1.oa2-cs.')}, "
-        f"Länge ID/Secret: {len(client_id)}/{len(client_secret)}",
+        f"Länge ID/Secret: {len(client_id)}/{len(client_secret)}, "
+        f"ID und Secret identisch: {client_id == client_secret}",
         flush=True,
     )
     body = {
