@@ -1,8 +1,10 @@
 name: Hot Deals stündlich aktualisieren
 
 on:
-  schedule:
-    - cron: "7 * * * *"  # jede Stunde zur Minute 7
+  # Stündlicher Lauf pausiert (21.10.2026, Amazon-Anmeldung klappt noch nicht).
+  # Zum Wieder-Einschalten die beiden Zeilen darunter wieder aktivieren.
+  # schedule:
+  #   - cron: "7 * * * *"  # jede Stunde zur Minute 7
   workflow_dispatch:
 
 permissions:
